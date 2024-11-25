@@ -19,7 +19,8 @@
 // Contact Information: www.gctrl.org
 //
 
-
+#include <cmath>
+#include <numbers>
 #include <iostream>
 #include <machine/thermostat.hpp>
 #include <chrono>
