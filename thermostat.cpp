@@ -21,13 +21,16 @@
 
 #include <cmath>
 #include <numbers>
+#include <random>
+
+
 #include <iostream>
 #include <machine/thermostat.hpp>
 #include <chrono>
 #include <thread>
 
-int main()
-{
+
+int main() {
     machine::thermostat thermostat;
 
     thermostat.machine_driver.subscribe();
@@ -45,12 +48,6 @@ int main()
         if (std::chrono::duration_cast<std::chrono::milliseconds>(now - last_1hz).count() >= 1000) {
             thermostat.at_1hz();
             last_1hz = now;
-        }
-
-        // 60 Hz (every ~16.67 ms)
-        if (std::chrono::duration_cast<std::chrono::milliseconds>(now - last_60hz).count() >= 16) {
-            thermostat.machine_driver.send();
-            last_60hz = now;
         }
 
         // 100 Hz (every 10 ms)
