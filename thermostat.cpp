@@ -19,55 +19,39 @@
 // Contact Information: www.gctrl.org
 //
 
-#include <cmath>
-#include <numbers>
-#include <random>
-
-
-#include <iostream>
+#include <gctrl.hpp>
 #include <machine/thermostat.hpp>
-#include <chrono>
-#include <thread>
-
 
 int main() {
     machine::thermostat thermostat;
 
-    thermostat.machine_driver.subscribe();
-
-    auto last_1hz = std::chrono::steady_clock::now();
-    auto last_60hz = std::chrono::steady_clock::now();
-    auto last_100hz = std::chrono::steady_clock::now();
-    auto last_1khz = std::chrono::steady_clock::now();
-    auto last_10khz = std::chrono::steady_clock::now();
+    gctrl::timer timer;
 
     while (true) {
-        auto now = std::chrono::steady_clock::now();
+        timer.update();
 
-        // 1 Hz (every 1 second)
-        if (std::chrono::duration_cast<std::chrono::milliseconds>(now - last_1hz).count() >= 1000) {
-            thermostat.at_1hz();
-            last_1hz = now;
+        if (timer.timestep_1hz.seconds() >= 1.0) {
+            thermostat.at_1hz(timer.timestep_1hz.seconds());
+            timer.timestep_1hz.reset();
         }
 
-        // 100 Hz (every 10 ms)
-        if (std::chrono::duration_cast<std::chrono::milliseconds>(now - last_100hz).count() >= 10) {
-            thermostat.at_100hz();
-            last_100hz = now;
+        if (timer.timestep_100hz.milliseconds() >= 10.0) {
+            thermostat.at_100hz(timer.timestep_100hz.milliseconds());
+            timer.timestep_100hz.reset();
         }
 
-        // 1 kHz (every 1 ms)
-        if (std::chrono::duration_cast<std::chrono::microseconds>(now - last_1khz).count() >= 1000) {
-            thermostat.at_1khz();
-            last_1khz = now;
+        if (timer.timestep_1khz.milliseconds() >= 1.0) {
+            thermostat.at_1khz(timer.timestep_1khz.milliseconds());
+            timer.timestep_1khz.reset();
         }
 
-        // 10 kHz (every 0.1 ms or 100 microseconds)
-        if (std::chrono::duration_cast<std::chrono::microseconds>(now - last_10khz).count() >= 100) {
-            thermostat.at_10khz();
-            last_10khz = now;
+        if (timer.timestep_10khz.microseconds() >= 100.0) {
+            thermostat.at_10khz(timer.timestep_10khz.microseconds());
+            timer.timestep_10khz.reset();
         }
 
         std::this_thread::sleep_for(std::chrono::microseconds(10));
     }
+
+    return 0;
 }
