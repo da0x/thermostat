@@ -20,6 +20,8 @@
 //
 
 #include <gctrl.hpp>
+using namespace gctrl;
+
 #include <machine/thermostat.hpp>
 
 int main() {
@@ -36,21 +38,21 @@ int main() {
         }
 
         if (timer.timestep_100hz.milliseconds() >= 10.0) {
-            thermostat.at_100hz(timer.timestep_100hz.milliseconds());
+            thermostat.at_100hz(timer.timestep_100hz.seconds());
             timer.timestep_100hz.reset();
         }
 
         if (timer.timestep_1khz.milliseconds() >= 1.0) {
-            thermostat.at_1khz(timer.timestep_1khz.milliseconds());
+            thermostat.at_1khz(timer.timestep_1khz.seconds());
             timer.timestep_1khz.reset();
         }
 
         if (timer.timestep_10khz.microseconds() >= 100.0) {
-            thermostat.at_10khz(timer.timestep_10khz.microseconds());
+            thermostat.at_10khz(timer.timestep_10khz.seconds());
             timer.timestep_10khz.reset();
         }
 
-        std::this_thread::sleep_for(std::chrono::microseconds(10));
+        std::this_thread::sleep_for(std::chrono::microseconds(1));
     }
 
     return 0;

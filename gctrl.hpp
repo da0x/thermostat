@@ -33,24 +33,26 @@
 #include <mutex>
 #include <string>
 #include <complex>
+#include <algorithm>
 
-constexpr float e = static_cast<float>(std::numbers::e);
-constexpr float log2e = static_cast<float>(std::numbers::log2e);
-constexpr float log10e = static_cast<float>(std::numbers::log10e);
-constexpr float pi = static_cast<float>(std::numbers::pi);
-constexpr float inv_pi = static_cast<float>(std::numbers::inv_pi);
-constexpr float inv_sqrtpi = static_cast<float>(std::numbers::inv_sqrtpi);
-constexpr float ln2 = static_cast<float>(std::numbers::ln2);
-constexpr float ln10 = static_cast<float>(std::numbers::ln10);
-constexpr float sqrt2 = static_cast<float>(std::numbers::sqrt2);
-constexpr float sqrt3 = static_cast<float>(std::numbers::sqrt3);
-constexpr float inv_sqrt3 = static_cast<float>(std::numbers::inv_sqrt3);
-constexpr float egamma = static_cast<float>(std::numbers::egamma);
-constexpr float phi = static_cast<float>(std::numbers::phi);
-
-typedef std::complex<float> complex;
 
 namespace gctrl {
+    constexpr float e = static_cast<float>(std::numbers::e);
+    constexpr float log2e = static_cast<float>(std::numbers::log2e);
+    constexpr float log10e = static_cast<float>(std::numbers::log10e);
+    constexpr float pi = static_cast<float>(std::numbers::pi);
+    constexpr float inv_pi = static_cast<float>(std::numbers::inv_pi);
+    constexpr float inv_sqrtpi = static_cast<float>(std::numbers::inv_sqrtpi);
+    constexpr float ln2 = static_cast<float>(std::numbers::ln2);
+    constexpr float ln10 = static_cast<float>(std::numbers::ln10);
+    constexpr float sqrt2 = static_cast<float>(std::numbers::sqrt2);
+    constexpr float sqrt3 = static_cast<float>(std::numbers::sqrt3);
+    constexpr float inv_sqrt3 = static_cast<float>(std::numbers::inv_sqrt3);
+    constexpr float egamma = static_cast<float>(std::numbers::egamma);
+    constexpr float phi = static_cast<float>(std::numbers::phi);
+
+    typedef std::complex<float> complex;
+    using std::clamp;
 
     class timestep {
     public:
