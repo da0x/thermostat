@@ -25,16 +25,23 @@ using namespace gctrl;
 #include <machine/thermostat.hpp>
 
 int main() {
-    machine::thermostat thermostat;
+    std::signal(SIGTERM, gctrl::handle_signal);
+    std::signal(SIGINT, gctrl::handle_signal);
 
+    machine::thermostat thermostat;
     gctrl::timer timer;
 
-    while (true) {
+    while (!terminate_requested) {
         timer.update();
 
         if (timer.timestep_1hz.seconds() >= 1.0) {
             thermostat.at_1hz(timer.timestep_1hz.seconds());
             timer.timestep_1hz.reset();
+        }
+
+        if (timer.timestep_10hz.milliseconds() >= 100.0) {
+            thermostat.at_10hz(timer.timestep_10hz.seconds());
+            timer.timestep_10hz.reset();
         }
 
         if (timer.timestep_100hz.milliseconds() >= 10.0) {
@@ -55,5 +62,6 @@ int main() {
         std::this_thread::sleep_for(std::chrono::microseconds(1));
     }
 
+    std::cout << "Terminating gracefully..." << std::endl;
     return 0;
 }

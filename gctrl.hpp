@@ -84,12 +84,14 @@ namespace gctrl {
         void update() {
             now_ = std::chrono::steady_clock::now();
             timestep_1hz.update(now_);
+            timestep_10hz.update(now_);
             timestep_100hz.update(now_);
             timestep_1khz.update(now_);
             timestep_10khz.update(now_);
         }
 
         timestep timestep_1hz;
+        timestep timestep_10hz;
         timestep timestep_100hz;
         timestep timestep_1khz;
         timestep timestep_10khz;
@@ -97,7 +99,6 @@ namespace gctrl {
     private:
         std::chrono::steady_clock::time_point now_;
     };
-
 }
 
 #include <winsock2.h>
@@ -171,3 +172,17 @@ namespace gctrl {
     }
 } // namespace gctrl
 
+#include <csignal>
+#include <atomic>
+#include <iostream>
+
+namespace gctrl {
+    inline std::atomic<bool> terminate_requested = false;
+
+    inline void handle_signal(int signal) {
+        if (signal == SIGTERM || signal == SIGINT) {
+            terminate_requested = true;
+            std::cerr << "Signal received. Terminating process..." << std::endl;
+        }
+    }
+}

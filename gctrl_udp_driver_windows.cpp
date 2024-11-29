@@ -4,6 +4,9 @@
 #include <stdexcept>
 #include <cstring>
 #include <iostream>
+#include <thread>
+#include <mutex>
+#include <vector>
 
 #pragma comment(lib, "Ws2_32.lib")
 
@@ -54,11 +57,18 @@ namespace gctrl {
             if (socket_fd_ == INVALID_SOCKET) {
                 throw std::runtime_error("Socket creation failed");
             }
+
+            u_long mode = 1;
+            if (ioctlsocket(socket_fd_, FIONBIO, &mode) != NO_ERROR) {
+                throw std::runtime_error("Failed to set non-blocking mode");
+            }
+
             sockaddr_in server_addr{};
             server_addr.sin_family = AF_INET;
             server_addr.sin_port = htons(port);
             server_addr.sin_addr.s_addr = INADDR_ANY;
             if (bind(socket_fd_, reinterpret_cast<sockaddr*>(&server_addr), sizeof(server_addr)) == SOCKET_ERROR) {
+                std::cerr << "Socket bind failed" << std::endl;
                 throw std::runtime_error("Socket bind failed");
             }
         }
@@ -78,6 +88,11 @@ namespace gctrl {
                         registry_.notify(id, { buffer.begin() + sizeof(uint64_t), buffer.end() });
                     }
                 }
+                else if (WSAGetLastError() != WSAEWOULDBLOCK) {
+                    std::cerr << "recvfrom error: " << WSAGetLastError() << std::endl;
+                }
+
+                std::this_thread::sleep_for(std::chrono::milliseconds(10));
             }
         }
 
@@ -95,6 +110,11 @@ namespace gctrl {
             if (socket_fd_ == INVALID_SOCKET) {
                 throw std::runtime_error("Socket creation failed");
             }
+
+            u_long mode = 1;
+            if (ioctlsocket(socket_fd_, FIONBIO, &mode) != NO_ERROR) {
+                throw std::runtime_error("Failed to set non-blocking mode");
+            }
         }
 
         void sender::send(uint64_t id, const std::vector<uint8_t>& data) {
@@ -107,8 +127,11 @@ namespace gctrl {
             server_addr.sin_port = htons(port_);
             InetPtonA(AF_INET, address_.c_str(), &server_addr.sin_addr);
 
-            sendto(socket_fd_, reinterpret_cast<const char*>(packet.data()), static_cast<int>(packet.size()), 0,
+            int result = sendto(socket_fd_, reinterpret_cast<const char*>(packet.data()), static_cast<int>(packet.size()), 0,
                 reinterpret_cast<sockaddr*>(&server_addr), sizeof(server_addr));
+            if (result == SOCKET_ERROR && WSAGetLastError() != WSAEWOULDBLOCK) {
+                std::cerr << "sendto error: " << WSAGetLastError() << std::endl;
+            }
         }
 
         sender::~sender() {
